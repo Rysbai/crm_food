@@ -12,7 +12,7 @@ class ServicePercentage(models.Model):
 
 
 class Check(models.Model):
-    order = models.ForeignKey(Order, unique=True, on_delete=models.CASCADE)
+    order = models.ForeignKey(Order, unique=True, on_delete=models.DO_NOTHING)
     percentage = models.ForeignKey(ServicePercentage, on_delete=None)
     date = models.DateTimeField(auto_now_add=True)
 

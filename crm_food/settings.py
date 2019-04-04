@@ -11,36 +11,38 @@ https://docs.djangoproject.com/en/2.1/ref/settings/
 """
 
 import os
-
 from decouple import config, Csv
+
+# Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = config('SECRET_KEY')
-
-DEBUG = config('DEBUG', default=True, cast=bool)
-
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.postgresql',
-#         'NAME': config('DB_NAME'),
-#         'USERNAME': config('DB_USER'),
-#         'PASSWORD': config('DB_PASSWORD'),
-#         'HOST': config('DB_HOST'),
-#         'PORT': '',
-#     }
-# }
-
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
-    }
-}
-
-
 ALLOWED_HOSTS = config('ALLOWED_HOSTS', cast=Csv())
 
+DEBUG = config('DEBUG', default=True, cast=bool)
+DOCKER = False
 
+if DOCKER:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql',
+            'NAME': 'postgres',
+            'USER': 'postgres',
+            'HOST': 'db',
+            'PORT': 5432,
+        }
+    }
+else:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql',
+            'NAME': config('DB_NAME'),
+            'USER': config('DB_USER'),
+            'PASSWORD': config('DB_PASSWORD'),
+            'HOST': config('DB_HOST'),
+            'PORT': '',
+        }
+    }
 
 # Application definition
 
@@ -86,6 +88,17 @@ TEMPLATES = [
 WSGI_APPLICATION = 'crm_food.wsgi.application'
 
 
+# Database
+# https://docs.djangoproject.com/en/2.1/ref/settings/#databases
+
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.sqlite3',
+#         'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+#     }
+# }
+
+
 
 # Password validation
 # https://docs.djangoproject.com/en/2.1/ref/settings/#auth-password-validators
@@ -115,6 +128,7 @@ REST_FRAMEWORK = {
         'app.backends.JWTAuthentication',
     ),
 }
+
 
 # Internationalization
 # https://docs.djangoproject.com/en/2.1/topics/i18n/
