@@ -3,6 +3,7 @@ from rest_framework import serializers
 
 from app.models.user import User, Role
 
+from app.exceptions import message_constants
 
 class RoleSerializer(serializers.ModelSerializer):
     class Meta:
@@ -24,7 +25,9 @@ class RegistrationSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ['role_id', 'name', 'surname', 'email', 'username', 'created_at', 'password', 'token']
+        fields = [
+            'id', 'role_id', 'name', 'surname', 'phone', 'email', 'username',
+            'created_at', 'password', 'token']
         read_only_fields = ('create_at', 'token')
 
     def create(self, validated_data):
@@ -50,23 +53,23 @@ class LoginSerializer(serializers.Serializer):
 
         if email is None:
             raise serializers.ValidationError(
-                'An email address is required to log in'
+                message_constants.EMAIL_IS_REQUIRED
             )
         if password is None:
             raise serializers.ValidationError(
-                'A password is required to log in.'
+                message_constants.PASSWORD_IS_REQUIRED
             )
 
         user = authenticate(email=email, password=password)
 
         if user is None:
             raise serializers.ValidationError(
-                "A user with this email and password was not found."
+                message_constants.USER_NOT_FOUND_WITH_EMAIL_AND_PASSWORD
             )
 
         if not user.is_active:
             raise serializers.ValidationError(
-                "This user has been deactivated."
+                message_constants.NOT_ACTIVE_USER
             )
 
         return {
@@ -77,6 +80,10 @@ class LoginSerializer(serializers.Serializer):
 
 
 class UserSerializer(serializers.ModelSerializer):
+    role_id = serializers.PrimaryKeyRelatedField(
+        queryset=Role.objects.all(),
+        source='role.id',
+    )
     password = serializers.CharField(
         max_length=128,
         min_length=8,
@@ -85,18 +92,24 @@ class UserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ('role_id', 'name', 'surname', 'email', 'username', 'created_at', 'password', 'token')
-        read_only_fields = ('token',)
+        fields = (
+            'id', 'role_id', 'name', 'surname', 'email', 'phone', 'username',
+            'created_at', 'password', 'token',
+        )
+        read_only_fields = ('token', )
 
-    
     def update(self, instance, validated_data):
         password = validated_data.pop('password', None)
+        role = validated_data.pop('role', None)
 
         for key, value in validated_data.items():
             setattr(instance, key, value)
 
         if password is not None:
             instance.set_password(password)
+
+        if role is not None:
+            instance.role = role['id']
 
         instance.save()
 

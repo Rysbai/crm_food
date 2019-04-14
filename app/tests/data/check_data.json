@@ -1,0 +1,10 @@
+{
+  "percentage": {
+    "percentage": 30
+  },
+  "check": {
+    "order_id": null,
+    "percentage_id":null,
+    "date": null 
+  }
+}

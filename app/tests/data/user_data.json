@@ -1,0 +1,15 @@
+{
+  "role": {
+    "name": "Role #1"
+  },
+  "user": {
+    "name": "TestName #1",
+    "surname": "TestSurName #1",
+    "username": "username_1",
+    "email": "username@example.com",
+    "password": "example_password",
+    "phone": "+996779583738",
+    "role_id": null,
+    "created_at": null
+  }
+}

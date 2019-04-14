@@ -1,0 +1,19 @@
+{
+  "status": {
+    "name": "TestStatusName #1"
+  },
+  "table": {
+    "name": "TestTableName #1"
+  },
+  "order": {
+    "waiter_id": null,
+    "table_id": null,
+    "isitopen": true,
+    "date": null
+  },
+  "order_item": {
+    "order_id": null,
+    "meal_id": null,
+    "count": 5
+  }
+}

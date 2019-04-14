@@ -121,7 +121,7 @@ AUTH_PASSWORD_VALIDATORS = [
 AUTH_USER_MODEL = 'app.User'
 
 REST_FRAMEWORK = {
-    'EXCEPTION_HUNDLER': 'crm_food.app.core.exceptions.core_exception_handler',
+    'EXCEPTION_HANDLER': 'app.core.exceptions.core_exception_handler',
     'NON_FIELD_ERRORS_KEY': 'error',
 
     'DEFAULT_AUTHENTICATION_CLASSES': (

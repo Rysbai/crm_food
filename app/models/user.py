@@ -1,27 +1,31 @@
 import jwt
 
+from django.db import models
 from datetime import datetime, timedelta
 
 from django.conf import settings
 from django.contrib.auth.models import (
     AbstractBaseUser, BaseUserManager, PermissionsMixin
 )
-
-from django.db import models
+from app.exceptions import message_constants
 
 
 class UserManager(BaseUserManager):
-    def create_user(self, role, name, surname, username, email, password=None):
+    def create_user(self, role, name, surname, username, email, phone, password=None):
         if username is None:
-            raise TypeError('Users must have a username.')
+            raise TypeError(message_constants.USERS_MUST_HAVE_AN_USERNAME)
 
         if email is None:
-            raise TypeError('Users must have an email address.')
+            raise TypeError(message_constants.USERS_MUST_HAVE_AN_EMAIL)
+
+        if phone is None:
+            raise TypeError(message_constants.USERS_MUST_HAVE_A_PHONE)
 
         user = self.model(
             role=role,
             username=username,
             email=self.normalize_email(email),
+            phone=phone,
             name=name,
             surname=surname
         )
@@ -32,7 +36,7 @@ class UserManager(BaseUserManager):
 
     def create_superuser(self, username, email, password):
         if password is None:
-            raise TypeError('Superusers must have a password.')
+            raise TypeError(message_constants.SUPER_USERS_MUST_HAVE_A_PASSWORD)
 
         user = self.create_user(username, email, password)
         user.is_superuser = True
@@ -55,7 +59,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     surname = models.CharField(db_index=True, max_length=255)
     username = models.CharField(db_index=True, max_length=255, unique=True)
     email = models.EmailField(db_index=True, unique=True)
-    phone = models.CharField(max_length=100)
+    phone = models.CharField(max_length=100, unique=True)
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)

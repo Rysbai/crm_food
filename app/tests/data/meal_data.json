@@ -1,0 +1,15 @@
+{
+  "department": {
+    "name": "department #1"
+  },
+  "meals_category": {
+    "department_id": null,
+    "name": "meals category #1"
+  },
+  "meal": {
+    "category_id": null,
+    "name": "MealNameTestName #1",
+    "price": 250,
+    "description": "MealTestDescription #1"
+  }
+}
