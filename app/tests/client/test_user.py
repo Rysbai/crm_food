@@ -426,7 +426,6 @@ class UserEntityTest(TestCase):
         header = {"HTTP_AUTHORIZATION": self.auth_header_prefix + token}
 
         response = self.client.delete(route, data, content_type="application/json", **header)
-        body = json.loads(response.content.decode())
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
 
     def test_should_return_all_roles(self):
@@ -499,6 +498,74 @@ class UserEntityTest(TestCase):
         })
 
         response = self.client.post(route, data, content_type="application/json")
+        body = json.loads(response.content.decode())
+
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(body['detail'], message_constants.AUTH_NOT_PROVIDED)
+
+    def test_should_delete_role_by_id(self):
+        role_orm = self.test_tool.create_role_orm()
+        user_orm = self.test_tool.create_user_orm(role_id=role_orm.id)
+        token = user_orm._generate_jwt_token()
+        other_empty_role_orm = self.test_tool.create_role_orm()
+
+        route = '/api/roles/'
+        data = json.dumps({
+            "role_id": other_empty_role_orm.id
+        })
+        header = {"HTTP_AUTHORIZATION": self.auth_header_prefix + token}
+
+        response = self.client.delete(route, data, content_type="application/json", **header)
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+
+    def test_should_return_error_if_role_not_found_with_id(self):
+        does_not_exist_role_id = 12345678
+
+        role_orm = self.test_tool.create_role_orm()
+        user_orm = self.test_tool.create_user_orm(role_id=role_orm.id)
+        token = user_orm._generate_jwt_token()
+
+        route = '/api/roles/'
+        data = json.dumps({
+            "role_id": does_not_exist_role_id
+        })
+        header = {"HTTP_AUTHORIZATION": self.auth_header_prefix + token}
+
+        response = self.client.delete(route, data, content_type="application/json", **header)
+        body = json.loads(response.content.decode())
+
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+        self.assertEqual(body['detail'], message_constants.ENTITY_NOT_FOUND)
+
+    def test_should_return_error_if_users_exist_with_this_role(self):
+
+        role_orm = self.test_tool.create_role_orm()
+        user_orm = self.test_tool.create_user_orm(role_id=role_orm.id)
+        token = user_orm._generate_jwt_token()
+
+        route = '/api/roles/'
+        data = json.dumps({
+            "role_id": role_orm.id
+        })
+        header = {"HTTP_AUTHORIZATION": self.auth_header_prefix + token}
+
+        response = self.client.delete(route, data, content_type="application/json", **header)
+        body = json.loads(response.content.decode())
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(body['errors'][0], message_constants.USERS_EXIST_WITH_ROLE)
+
+    def test_delete_role_should_return_error_if_user_doesnt_send_auth_token(self):
+
+        role_orm = self.test_tool.create_role_orm()
+        other_empty_role_orm = self.test_tool.create_role_orm()
+
+        route = '/api/roles/'
+        data = json.dumps({
+            "role_id": other_empty_role_orm.id
+        })
+
+        response = self.client.delete(route, data, content_type="application/json")
         body = json.loads(response.content.decode())
 
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)

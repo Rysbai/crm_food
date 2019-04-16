@@ -58,8 +58,8 @@ class MealsCategoryView(APIView):
             except Department.DoesNotExist:
                 raise Http404
             else:
-                meal_categories = self.queryset.filter(department=department)
-                serializer = MealsCategorySerializer(meal_categories, many=True)
+                meal_categories = self.queryset.filter(department=department).order_by('id')
+                serializer = self.serializer_class(meal_categories, many=True)
 
                 return Response(serializer.data)
 

@@ -1,11 +1,13 @@
 from django.http import Http404
 from rest_framework import status
-from rest_framework.exceptions import ParseError
+from rest_framework.exceptions import ParseError, ValidationError
 from rest_framework.generics import RetrieveUpdateDestroyAPIView, ListAPIView
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.renderers import JSONRenderer
+
+from app.exceptions import message_constants
 from app.serializers.user import (
     RegistrationSerializer, LoginSerializer, UserSerializer, RoleSerializer
 )
@@ -35,6 +37,11 @@ class RoleView(APIView):
 
         if role_id is None:
             raise ParseError("role_id field is required")
+
+        users_with_this_role = User.objects.filter(role_id=role_id)
+
+        if users_with_this_role:
+            raise ValidationError(detail=message_constants.USERS_EXIST_WITH_ROLE)
 
         try:
             role = self.queryset.get(id=role_id)

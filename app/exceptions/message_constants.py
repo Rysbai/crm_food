@@ -13,3 +13,6 @@ USERS_MUST_HAVE_AN_USERNAME = 'Users must have an email address.'
 USERS_MUST_HAVE_A_PHONE = 'Users must have a phone number.'
 SUPER_USERS_MUST_HAVE_A_PASSWORD = 'Superusers must have a password.'
 
+USERS_EXIST_WITH_ROLE = 'You can not delete this role, first change roles of other users with this role.'
+
+ENTITY_NOT_FOUND = 'Not found.'
