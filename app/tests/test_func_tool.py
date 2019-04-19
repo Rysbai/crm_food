@@ -68,7 +68,10 @@ class TestFuncTool:
         for key, value in kwargs.items():
             table_data[key] = value
 
-        return Table.objects.create(**table_data)
+        table = Table.objects.create(**table_data)
+        table.save()
+
+        return table
 
     def create_order_orm(self, **kwargs):
         order_data = self.order_data['order'].copy()
@@ -76,7 +79,10 @@ class TestFuncTool:
         for key, value in kwargs.items():
             order_data[key] = value
 
-        return Order.objects.create(**order_data)
+        order = Order.objects.create(**order_data)
+        order.save()
+
+        return order
 
     def create_order_item_orm(self, **kwargs):
         order_item_data = self.order_data['order_item'].copy()

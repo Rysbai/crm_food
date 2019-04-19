@@ -72,7 +72,7 @@ class TableView(APIView):
 
         try:
             table = self.queryset.get(id=table_id)
-        except Status.DoesNotExist:
+        except Table.DoesNotExist:
             raise Http404
         else:
             table.delete()
@@ -85,11 +85,11 @@ class OrderView(APIView):
     serializer_class = OrderSerializer
 
     def get(self, request, pk=None, *args, **kwargs):
-        if request.query_params.get('days'):
-            days = int(request.query_params.get('days'))
 
+        days = request.query_params.get('days', None)
+        if days:
             orders = self.queryset.filter(
-                date__gt=datetime.datetime.now() - datetime.timedelta(days=days)
+                date__gt=datetime.datetime.now() - datetime.timedelta(days=int(days))
             ).order_by('-date')
             serializer = self.serializer_class(orders, many=True)
 
@@ -156,15 +156,19 @@ class MealsInOrderView(APIView):
     serializer_class = MealsInOrderSerializer
 
     def get(self, request, *args, **kwargs):
-        order_id = request.data.get('order_id')
-        try:
-            order = self.queryset.get(id=order_id)
-        except Order.DoesNotExist:
-            raise Http404
+        order_id = request.query_params.get('order_id', None)
+        if order_id:
+            try:
+                order = self.queryset.get(id=order_id)
+            except Order.DoesNotExist:
+                raise Http404
 
-        serializer = self.serializer_class(order)
+            serializer = self.serializer_class(order)
 
-        return Response(serializer.data)
+            return Response(serializer.data)
+
+        else:
+            raise ParseError("order_id field is required!")
 
     def post(self, request, *args, **kwargs):
         serializer = self.serializer_class(data=request.data)

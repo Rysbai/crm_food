@@ -37,10 +37,17 @@ class MealSerializer(serializers.ModelSerializer):
         fields = ('id', 'category_id', 'name', 'price', 'description')
 
     def create(self, validated_data):
-        meal = Meal.objects.create(
-            category=validated_data['category']['id'],
-            name=validated_data['name'],
-            price=validated_data['price'],
-            description=validated_data['description']
-        )
+        if 'description' in validated_data:
+            meal = Meal.objects.create(
+                category=validated_data['category']['id'],
+                name=validated_data['name'],
+                price=validated_data['price'],
+                description=validated_data['description']
+            )
+        else:
+            meal = Meal.objects.create(
+                category=validated_data['category']['id'],
+                name=validated_data['name'],
+                price=validated_data['price'],
+            )
         return meal

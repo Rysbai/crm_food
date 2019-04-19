@@ -16,6 +16,9 @@ class MealEntityTest(TestCase):
         filejson = open('./app/tests/data/meal_data.json', encoding='utf-8')
         self.meal_data = json.loads(filejson.read())
 
+        self.test_objects_counts = 4
+
+
     def equal_department(self, body, department):
         self.assertEqual(body['id'], department.id)
         self.assertEqual(body['name'], department.name)
@@ -34,7 +37,6 @@ class MealEntityTest(TestCase):
 
 
     def test_should_return_all_departments(self):
-
         role_orm = self.test_tool.create_role_orm()
         user_orm = self.test_tool.create_user_orm(role_id=role_orm.id)
         token = user_orm._generate_jwt_token()
@@ -304,7 +306,7 @@ class MealEntityTest(TestCase):
         for i in range(meal_categories_count):
             self.equal_meals_category(body[i], all_meal_categories[i])
 
-    def test_should_return_error_department_not_found_by_id(self):
+    def test_should_return_error_if_department_not_found_by_id(self):
         doesnt_exist_department_id = 123456
         role_orm = self.test_tool.create_role_orm()
         user_orm = self.test_tool.create_user_orm(role_id=role_orm.id)
@@ -319,7 +321,7 @@ class MealEntityTest(TestCase):
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
         self.assertEqual(body['detail'], message_constants.ENTITY_NOT_FOUND)
 
-    def test_should_return_error_if_user_didnt_send_auth_token(self):
+    def test_get_meals_category_by_department_should_return_error_if_user_didnt_send_auth_token(self):
         doesnt_exist_department_id = 123456
         route = '/api/meal_categories/by_department/{}/'.format(doesnt_exist_department_id)
 
@@ -330,6 +332,115 @@ class MealEntityTest(TestCase):
         self.assertEqual(body['detail'], message_constants.AUTH_NOT_PROVIDED)
 
     def test_should_return_all_meals(self):
+        meal_name = 'meal_name #'
+
+        role_orm = self.test_tool.create_role_orm()
+        user_orm = self.test_tool.create_user_orm(role_id=role_orm.id)
+        token = user_orm._generate_jwt_token()
+
+        department_orm = self.test_tool.create_department_orm()
+        meals_category_orm = self.test_tool.create_meals_category_orm(
+            department_id=department_orm.id
+        )
+        all_meals = []
+        for i in range(self.test_objects_counts):
+            meal_orm = self.test_tool.create_meal_orm(
+                category_id=meals_category_orm.id,
+                name=meal_name + str(i)
+            )
+            all_meals.append(meal_orm)
+
+        route = '/api/meals/'
+        header = {"HTTP_AUTHORIZATION": self.auth_header_prefix + token}
+
+        response = self.client.get(route, content_type="application/json", **header)
+        body = json.loads(response.content.decode())
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        for i in range(self.test_objects_counts):
+            self.equal_meal(body[i], all_meals[i])
+
+    def test_get_all_meals_should_return_error_if_user_didnt_send_auth_token(self):
+        route = '/api/meals/'
+
+        response = self.client.get(route, content_type="application/json")
+        body = json.loads(response.content.decode())
+
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(body['detail'], message_constants.AUTH_NOT_PROVIDED)
+
+    def test_should_return_meals_with_sent_category_id_in_path(self):
+        meal_name = 'meal_name #'
+
+        role_orm = self.test_tool.create_role_orm()
+        user_orm = self.test_tool.create_user_orm(role_id=role_orm.id)
+        token = user_orm._generate_jwt_token()
+
+        department_orm = self.test_tool.create_department_orm()
+        first_meals_category_orm = self.test_tool.create_meals_category_orm(
+            department_id=department_orm.id
+        )
+        second_meals_category_orm = self.test_tool.create_meals_category_orm(
+            department_id=department_orm.id
+        )
+
+        meals_with_first_meals_category = []
+        meals_count_with_second_meals_category = 2
+        for i in range(self.test_objects_counts):
+
+            if i > meals_count_with_second_meals_category:
+                _meal_orm = self.test_tool.create_meal_orm(
+                    category_id=second_meals_category_orm.id,
+                    name=meal_name + str(i)
+                )
+            else:
+                meal_orm = self.test_tool.create_meal_orm(
+                    category_id=first_meals_category_orm.id,
+                    name=meal_name + str(i)
+                )
+                meals_with_first_meals_category.insert(0, meal_orm)
+
+        route = '/api/meals/by_category/{}/'.format(first_meals_category_orm.id)
+        header = {"HTTP_AUTHORIZATION": self.auth_header_prefix + token}
+
+        response = self.client.get(route, content_type="application/json", **header)
+        body = json.loads(response.content.decode())
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(body), len(meals_with_first_meals_category))
+
+        for i in range(self.test_objects_counts - meals_count_with_second_meals_category):
+            self.equal_meal(body[i], meals_with_first_meals_category[i])
+
+    def test_should_return_error_if_meals_category_not_found_by_id(self):
+        doesnt_exist_meal_id = 123456
+        role_orm = self.test_tool.create_role_orm()
+        user_orm = self.test_tool.create_user_orm(role_id=role_orm.id)
+        token = user_orm._generate_jwt_token()
+
+        route = '/api/meals/by_category/{}/'.format(doesnt_exist_meal_id)
+        header = {"HTTP_AUTHORIZATION": self.auth_header_prefix + token}
+
+        response = self.client.get(route, content_type="application/json", **header)
+        body = json.loads(response.content.decode())
+
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+        self.assertEqual(body['detail'], message_constants.ENTITY_NOT_FOUND)
+
+    def test_meals_by_meals_category_id_should_return_error_if_user_didnt_send_auth_token(self):
+        department_orm = self.test_tool.create_department_orm()
+        meals_category_orm = self.test_tool.create_meals_category_orm(
+            department_id=department_orm.id
+        )
+        route = '/api/meals/by_category/{}/'.format(meals_category_orm.id)
+
+        response = self.client.get(route, content_type="application/json")
+        body = json.loads(response.content.decode())
+
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(body['detail'], message_constants.AUTH_NOT_PROVIDED)
+
+    def test_should_create_meal_with_valid_data(self):
         role_orm = self.test_tool.create_role_orm()
         user_orm = self.test_tool.create_user_orm(role_id=role_orm.id)
         token = user_orm._generate_jwt_token()
@@ -397,7 +508,7 @@ class MealEntityTest(TestCase):
 
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
 
-    def test_should_return_error_meal_not_found_by_id(self):
+    def test_should_return_error_if_meal_not_found_by_id(self):
         doesnt_exist_meal_id = 123456
         role_orm = self.test_tool.create_role_orm()
         user_orm = self.test_tool.create_user_orm(role_id=role_orm.id)

@@ -3,6 +3,7 @@ import json
 from django.test import TestCase
 from rest_framework import status
 
+from app.models.user import Role
 from app.tests.test_func_tool import TestFuncTool
 
 from app.exceptions import message_constants
@@ -432,15 +433,16 @@ class UserEntityTest(TestCase):
         role_name = 'role #'
         role_count = 5
 
-        all_roles = []
+        admin_role_orm = Role.objects.get(name='Admin')
+        user_orm = self.test_tool.create_user_orm(role_id=admin_role_orm.id)
+        token = user_orm._generate_jwt_token()
+
+        all_roles = [admin_role_orm, ]
         for i in range(role_count):
             role_orm = self.test_tool.create_role_orm(
                 name=role_name + str(i)
             )
             all_roles.append(role_orm)
-
-        user_orm = self.test_tool.create_user_orm(role_id=role_orm.id)
-        token = user_orm._generate_jwt_token()
 
         route = '/api/roles/'
         header = {"HTTP_AUTHORIZATION": self.auth_header_prefix + token}
@@ -555,9 +557,8 @@ class UserEntityTest(TestCase):
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual(body['errors'][0], message_constants.USERS_EXIST_WITH_ROLE)
 
-    def test_delete_role_should_return_error_if_user_doesnt_send_auth_token(self):
+    def test_delete_role_should_return_error_if_user_didnt_send_auth_token(self):
 
-        role_orm = self.test_tool.create_role_orm()
         other_empty_role_orm = self.test_tool.create_role_orm()
 
         route = '/api/roles/'
