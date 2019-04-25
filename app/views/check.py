@@ -82,7 +82,6 @@ class CheckView(APIView):
             check.delete()
             return Response(status=status.HTTP_204_NO_CONTENT)
 
-
     def _close_order(self, order_id):
         order = Order.objects.get(id=order_id)
         order.isitopen = False

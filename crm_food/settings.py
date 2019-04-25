@@ -11,7 +11,11 @@ https://docs.djangoproject.com/en/2.1/ref/settings/
 """
 
 import os
+import django_heroku
 from decouple import config, Csv
+
+import sentry_sdk
+from sentry_sdk.integrations.django import DjangoIntegration
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 
@@ -21,6 +25,7 @@ ALLOWED_HOSTS = config('ALLOWED_HOSTS', cast=Csv())
 
 DEBUG = config('DEBUG', default=True, cast=bool)
 DOCKER = False
+DEPLOY = True
 
 if DOCKER:
     DATABASES = {
@@ -32,6 +37,10 @@ if DOCKER:
             'PORT': 5432,
         }
     }
+    if DEPLOY:
+        DATABASES = {}
+        DATABASES['default'] = django_heroku.dj_database_url.config(default='DATABASE_URL')
+
 else:
     DATABASES = {
         'default': {
@@ -148,3 +157,14 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/2.1/howto/static-files/
 
 STATIC_URL = '/static/'
+
+# Heroku settings
+
+django_heroku.settings(locals())
+
+# Sentry settings
+
+sentry_sdk.init(
+    dsn="https://b6b5641c62df4285a9ceebf36b4c0c04@sentry.io/1444364",
+    integrations=[DjangoIntegration()]
+)

@@ -1,0 +1,133 @@
+[
+{
+  "model": "app.department",
+  "pk": 1,
+  "fields": {
+    "name": "department #1"
+  }
+},
+{
+  "model": "app.department",
+  "pk": 3,
+  "fields": {
+    "name": "department #1"
+  }
+},
+{
+  "model": "app.mealscategory",
+  "pk": 1,
+  "fields": {
+    "department": 1,
+    "name": "department #1"
+  }
+},
+{
+  "model": "app.mealscategory",
+  "pk": 2,
+  "fields": {
+    "department": 1,
+    "name": "department #1"
+  }
+},
+{
+  "model": "app.meal",
+  "pk": 1,
+  "fields": {
+    "category": 1,
+    "name": "meal #1",
+    "price": 50.0,
+    "description": null
+  }
+},
+{
+  "model": "app.meal",
+  "pk": 2,
+  "fields": {
+    "category": 1,
+    "name": "meal #1",
+    "price": 50.0,
+    "description": null
+  }
+},
+{
+  "model": "app.role",
+  "pk": 1,
+  "fields": {
+    "name": "role# #1"
+  }
+},
+{
+  "model": "app.role",
+  "pk": 2,
+  "fields": {
+    "name": "Admin"
+  }
+},
+{
+  "model": "app.user",
+  "pk": 1,
+  "fields": {
+    "password": "pbkdf2_sha256$120000$KhIRh0yU9mDZ$E290/ZXzAsrEcF2aE+61QDwUd3aMpLsjduGexT1DB6o=",
+    "last_login": null,
+    "is_superuser": false,
+    "role": 1,
+    "name": "User #1",
+    "surname": "Last name",
+    "username": "username3",
+    "email": "sample3@example.com",
+    "phone": "0111111111111",
+    "is_active": true,
+    "is_staff": false,
+    "created_at": "2019-04-15T02:59:13.970Z",
+    "updated_at": "2019-04-15T02:59:13.970Z",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "app.table",
+  "pk": 1,
+  "fields": {
+    "name": "table #"
+  }
+},
+{
+  "model": "app.order",
+  "pk": 1,
+  "fields": {
+    "waiter": 1,
+    "table": 1,
+    "isitopen": true,
+    "date": "2019-04-16T15:27:37.243Z"
+  }
+},
+{
+  "model": "app.order",
+  "pk": 2,
+  "fields": {
+    "waiter": 1,
+    "table": 1,
+    "isitopen": true,
+    "date": "2019-04-16T15:46:29.639Z"
+  }
+},
+{
+  "model": "app.order",
+  "pk": 3,
+  "fields": {
+    "waiter": 1,
+    "table": 1,
+    "isitopen": true,
+    "date": "2019-04-16T15:48:46.306Z"
+  }
+},
+{
+  "model": "app.orderitem",
+  "pk": 1,
+  "fields": {
+    "order": 3,
+    "meal": 1,
+    "count": 3
+  }
+}
+]

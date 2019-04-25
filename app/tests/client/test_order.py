@@ -2,7 +2,6 @@ import json
 import datetime
 from django.utils import timezone
 from django.test import TestCase
-from rest_framework.test import APIClient
 from rest_framework import status
 
 from app.exceptions import message_constants
@@ -12,7 +11,6 @@ from app.tests.test_func_tool import TestFuncTool
 class OrderEntityTest(TestCase):
 
     def setUp(self):
-        self.client = APIClient()
         self.test_tool = TestFuncTool()
         self.auth_header_prefix = "Bearer "
 
@@ -647,7 +645,6 @@ class OrderEntityTest(TestCase):
         header = {"HTTP_AUTHORIZATION": self.auth_header_prefix + token}
 
         response = self.client.get(route, content_type="application/json", **header)
-        print(response.content.decode())
         body = json.loads(response.content.decode())
 
         for i in range(meals_in_order_count):
