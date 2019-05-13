@@ -38,7 +38,6 @@ if DOCKER:
         }
     }
     if DEPLOY:
-        DATABASES = {}
         DATABASES['default'] = django_heroku.dj_database_url.config(default='DATABASE_URL')
 
 else:
@@ -159,8 +158,8 @@ USE_TZ = True
 STATIC_URL = '/static/'
 
 # Heroku settings
-
-django_heroku.settings(locals())
+if DEPLOY:
+    django_heroku.settings(locals())
 
 # Sentry settings
 

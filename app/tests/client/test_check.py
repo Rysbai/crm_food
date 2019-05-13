@@ -57,7 +57,30 @@ class CheckEntityTest(TestCase):
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         for i in range(self.test_objects_counts):
-            self.equal_status(body[i], all_statuses[i])
+            self.equal_percentage(body[i], all_percentages[i])
+
+    def test_get_service_percentages_should_return_error_if_user_didnt_send_auth_token(self):
+        percentage_sum = 30
+
+        all_percentages = []
+        for i in range(self.test_objects_counts):
+            percentage_orm = self.test_tool.create_percentage_orm(
+                percentage=percentage_sum + i
+            )
+            all_percentages.append(percentage_orm)
+
+        route = '/api/service_percentage/'
+
+        response = self.client.get(route, content_type="application/json")
+        body = json.loads(response.content.decode())
+
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(body['detail'], message_constants.AUTH_NOT_PROVIDED)
+
+
+
+
+
 
 
 

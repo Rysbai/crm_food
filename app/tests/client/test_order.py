@@ -63,7 +63,7 @@ class OrderEntityTest(TestCase):
         for i in range(self.test_objects_counts):
             self.equal_status(body[i], all_statuses[i])
 
-    def test_get_all_statuses_should_return_if_user_didnt_send_auth_token(self):
+    def test_get_all_statuses_should_return_error_if_user_didnt_send_auth_token(self):
         status_name = 'status #'
 
         all_statuses = []
@@ -641,7 +641,7 @@ class OrderEntityTest(TestCase):
                     count=3
                 )
 
-        route = '/api/order/meals?order_id=1/'
+        route = '/api/order/meals?order_id={}/'.format(order_orm.id)
         header = {"HTTP_AUTHORIZATION": self.auth_header_prefix + token}
 
         response = self.client.get(route, content_type="application/json", **header)
