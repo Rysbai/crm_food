@@ -18,12 +18,9 @@ class ServicePercentageView(APIView):
     serializer_class = ServicePercentageSerializer
 
     def get(self, request, *args, **kwargs):
-        try:
-            percentage = self.queryset.all()[0]
-        except IndexError:
-            return Response([], status=status.HTTP_200_OK)
+        percentage = self.queryset.all()
 
-        serializer = self.serializer_class(percentage)
+        serializer = self.serializer_class(percentage, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def post(self, request, *args, **kwargs):
@@ -37,7 +34,7 @@ class ServicePercentageView(APIView):
         percentage_id = request.data.get('id', None)
 
         if percentage_id is None:
-            raise ParseError("department_id field is required")
+            raise ParseError("percentage_id field is required")
 
         try:
             percentage = self.queryset.get(id=percentage_id)
@@ -81,6 +78,7 @@ class CheckView(APIView):
         else:
             check.delete()
             return Response(status=status.HTTP_204_NO_CONTENT)
+
 
     def _close_order(self, order_id):
         order = Order.objects.get(id=order_id)

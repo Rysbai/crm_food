@@ -1,6 +1,5 @@
 import mock
 import unittest
-from django.test import TestCase
 from app.models.meal import Department, MealsCategory, Meal
 
 

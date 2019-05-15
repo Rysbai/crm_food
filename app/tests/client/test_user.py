@@ -329,9 +329,7 @@ class UserEntityTest(TestCase):
         self.assertEqual(body['user']['phone'], new_phone)
         self.assertEqual(body['user']['role_id'], new_role_orm.id)
 
-    def test_should_return_error_if_user_didnt_send_auth_token(self):
-        role_orm = self.test_tool.create_role_orm()
-        user_orm = self.test_tool.create_user_orm(role_id=role_orm.id)
+    def test_update_user_should_return_error_if_user_didnt_send_auth_token(self):
 
         new_role_orm = self.test_tool.create_role_orm(name='example role #2')
         new_name = 'NewName'
@@ -359,7 +357,7 @@ class UserEntityTest(TestCase):
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
         self.assertEqual(body['user']['detail'], message_constants.AUTH_NOT_PROVIDED)
 
-    def test_should_return_all_user(self):
+    def test_should_return_all_users(self):
         user_phone = '+99677911111'
         user_email = 'example@example.com'
         username = 'username #'

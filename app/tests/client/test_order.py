@@ -358,13 +358,14 @@ class OrderEntityTest(TestCase):
                     table_id=table_orm.id,
                     waiter_id=user_orm.id
                 )
-                order_orm.date = timezone.now() - datetime.timedelta(days=days, seconds=1)
+                order_orm.date = timezone.now() - datetime.timedelta(days=days + 1, seconds=1)
                 order_orm.save()
 
-        route = '/api/orders?days={}'.format(days)
+        route = '/api/orders/'
+        query_params = {'days': days}
         header = {"HTTP_AUTHORIZATION": self.auth_header_prefix + token}
 
-        response = self.client.get(route, content_type="application/json", **header)
+        response = self.client.get(route, query_params, content_type="application/json", **header)
         body = json.loads(response.content.decode())
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -611,11 +612,12 @@ class OrderEntityTest(TestCase):
         meals_category_orm = self.test_tool.create_meals_category_orm(
             department_id=department_orm.id
         )
+        meal_orm = self.test_tool.create_meal_orm(category_id=meals_category_orm.id)
+
         order_orm = self.test_tool.create_order_orm(
             table_id=table_orm.id,
             waiter_id=user_orm.id
         )
-        meal_orm = self.test_tool.create_meal_orm(category_id=meals_category_orm.id)
 
         meals_in_order_count = self.test_objects_counts - 2
         order_items = []
@@ -641,12 +643,13 @@ class OrderEntityTest(TestCase):
                     count=3
                 )
 
-        route = '/api/order/meals?order_id={}/'.format(order_orm.id)
+        route = '/api/order/meals/'
+        query_params = {'order_id': order_orm.id}
         header = {"HTTP_AUTHORIZATION": self.auth_header_prefix + token}
 
-        response = self.client.get(route, content_type="application/json", **header)
+        response = self.client.get(route, query_params, content_type="application/json", **header)
         body = json.loads(response.content.decode())
 
         for i in range(meals_in_order_count):
-            self.equal_order(body['order_id'], order_orm.id)
-            self.equal_order_item(body['meals'], order_items[i])
+            self.assertEqual(body['order_id'], order_orm.id)
+            self.equal_order_item(body['meals'][i], order_items[i])
